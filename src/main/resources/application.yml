@@ -20,5 +20,8 @@ spring:
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
-  # ?? XML ?? ??
   mapper-locations: classpath:mapper/**/*.xml
+
+jwt:
+  secret: "${JWT_SECRET}"
+  expiration-ms: 3600000
