@@ -21,7 +21,7 @@ public class AuthController {
 	private AuthService authService;
 
 	@PostMapping("/kakao")
-	public ResponseEntity<?> handleKakaoLogin(@RequestBody KakaoUserRequest request) {
+	public ResponseEntity<Map<String, Object>> handleKakaoLogin(@RequestBody KakaoUserRequest request) {
 
 		// 유저 저장 및 업데이트
 		UserDto user = authService.saveOrUpdateKakaoUser(request);
