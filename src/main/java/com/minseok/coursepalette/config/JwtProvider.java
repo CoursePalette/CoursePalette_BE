@@ -7,8 +7,9 @@ import java.util.Date;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import com.minseok.coursepalette.domain.UserDto;
+import com.minseok.coursepalette.entity.UserEntity;
 
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -30,7 +31,7 @@ public class JwtProvider {
 	}
 
 	// userDto로 jwt 생성
-	public String createToken(UserDto user) {
+	public String createToken(UserEntity user) {
 		Date now = new Date();
 		Date expiry = new Date(now.getTime() + validityInMs);
 
@@ -42,5 +43,14 @@ public class JwtProvider {
 			.setExpiration(expiry)
 			.signWith(key, SignatureAlgorithm.HS256)
 			.compact();
+	}
+
+	// jwt 파싱
+	public Claims parseToken(String token) {
+		return Jwts.parserBuilder()
+			.setSigningKey(key)
+			.build()
+			.parseClaimsJws(token)
+			.getBody();
 	}
 }
