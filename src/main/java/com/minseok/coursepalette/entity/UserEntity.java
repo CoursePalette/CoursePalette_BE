@@ -1,6 +1,6 @@
-package com.minseok.coursepalette.domain;
+package com.minseok.coursepalette.entity;
 
-public class UserDto {
+public class UserEntity {
 	private Long userId;
 	private Long kakaoId;
 	private String nickname;
