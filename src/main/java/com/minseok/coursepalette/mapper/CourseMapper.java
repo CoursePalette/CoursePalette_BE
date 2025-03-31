@@ -13,7 +13,7 @@ public interface CourseMapper {
 			INSERT INTO course (user_id, title, category)
 			VALUES (#{userId}, #{title}, #{category})
 		""")
-	@Options(useGeneratedKeys = true, keyProperty = "courseId")
+	@Options(useGeneratedKeys = true, keyProperty = "courseId", keyColumn = "course_id")
 	void insertCourse(CourseEntity course);
 
 	@Insert("""
