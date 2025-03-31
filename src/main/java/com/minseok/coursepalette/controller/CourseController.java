@@ -1,8 +1,5 @@
 package com.minseok.coursepalette.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.minseok.coursepalette.config.JwtProvider;
 import com.minseok.coursepalette.dto.CreateCourseRequestDto;
+import com.minseok.coursepalette.dto.CreateCourseResponseDto;
 import com.minseok.coursepalette.service.CourseService;
 
 import io.jsonwebtoken.Claims;
@@ -42,13 +40,15 @@ public class CourseController {
 	})
 	@SecurityRequirement(name = "BearerAuth")  // 스웨거에서 BearerAuth 인증 적용
 	@PostMapping
-	public ResponseEntity<?> createCourse(
-		@RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+	public ResponseEntity<CreateCourseResponseDto> createCourse(
+		@RequestHeader(value = "Authorization", required = true) String authorizationHeader,
 		@RequestBody CreateCourseRequestDto request
 	) {
 		// 헤더에 토큰 있는지 우선 확인
 		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-			return ResponseEntity.badRequest().body("토큰이 필요합니다.");
+			CreateCourseResponseDto errorDto = new CreateCourseResponseDto();
+			errorDto.setMessage("토큰이 필요합니다.");
+			return ResponseEntity.badRequest().body(errorDto);
 		}
 		//Bearer 이후가 실제 토큰
 		String token = authorizationHeader.substring("Bearer ".length());
@@ -58,7 +58,9 @@ public class CourseController {
 		try {
 			claims = jwtProvider.parseToken(token);
 		} catch (Exception e) {
-			return ResponseEntity.status(401).body("유효하지 않은 토큰");
+			CreateCourseResponseDto errorDto = new CreateCourseResponseDto();
+			errorDto.setMessage("유효하지 않은 토큰입니다.");
+			return ResponseEntity.status(401).body(errorDto);
 		}
 
 		// 토큰에서 userId를 추출
@@ -66,16 +68,18 @@ public class CourseController {
 		try {
 			userId = Long.valueOf(claims.getSubject());
 		} catch (NumberFormatException e) {
-			return ResponseEntity.status(401).body("토큰에서 userId 추출 실패");
+			CreateCourseResponseDto errorDto = new CreateCourseResponseDto();
+			errorDto.setMessage("토큰에서 userId 추출 실패");
+			return ResponseEntity.status(401).body(errorDto);
 		}
 
 		// 서비스 호출
 		Long courseId = courseService.createCourse(userId, request);
 
 		//응답
-		Map<String, Object> result = new HashMap<>();
-		result.put("courseId", courseId);
-		result.put("message", "코스 등록 성공");
-		return ResponseEntity.ok(result);
+		CreateCourseResponseDto responseDto = new CreateCourseResponseDto();
+		responseDto.setCourseId(courseId);
+		responseDto.setMessage("코스 등록 성공");
+		return ResponseEntity.ok(responseDto);
 	}
 }
