@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.minseok.coursepalette.mapper.CourseMapper">
+    <select id="findCoursesByFilter" resultType="com.minseok.coursepalette.entity.CourseEntity">
+        SELECT
+        course_id AS courseId,
+        user_id AS userId,
+        title,
+        category,
+        DATE_FORMAT(created_at, '%Y-%m-%d') AS createdAt
+        FROM course
+        <where>
+            <if test="search != null and search != '' ">
+                AND title LIKE CONCAT('%', ${search}, '%')
+            </if>
+            <if test="category != null and category != '' and category != '전체'">
+                AND category = #{category}
+            </if>
+        </where>
+        ORDER BY course_id DESC
+    </select>
+</mapper>

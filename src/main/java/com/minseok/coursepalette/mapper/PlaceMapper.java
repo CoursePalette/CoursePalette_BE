@@ -1,7 +1,10 @@
 package com.minseok.coursepalette.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
 import com.minseok.coursepalette.entity.PlaceEntity;
@@ -25,4 +28,8 @@ public interface PlaceMapper {
 			VALUES (#{placeId}, #{name}, #{address}, #{latitude}, #{longitude}, #{placeUrl})
 		""")
 	void insertPlace(PlaceEntity place);
+
+	// 다양한 코스에 속한 place 목록을 중복 없이 조회
+	List<PlaceEntity> findDistinctPlacesByCourseIds(@Param("courseIds")
+	List<Long> courseIds);
 }
