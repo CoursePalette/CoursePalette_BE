@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.minseok.coursepalette.mapper.PlaceMapper">
+    <!--   다양한 코스에 속한 place 목록을 중복 없이 조회-->
+    <select id="findDistinctPlacesByCourseIds" resultType="com.minseok.coursepalette.entity.PlaceEntity">
+        SELECT DISTINCT p.place_id AS placeID,
+        p.name,
+        p.address,
+        p.latitude,
+        p.longitude,
+        p.place_url AS placeUrl
+        FROM place p
+        JOIN coursePlace cp ON p.place_id = cp.place_id
+        WHERE cp.course_id IN
+        <foreach item="id" collection="courseIds" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+</mapper>
