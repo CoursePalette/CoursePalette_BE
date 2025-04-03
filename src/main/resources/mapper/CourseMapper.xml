@@ -25,4 +25,21 @@
         </where>
         ORDER BY course_id DESC
     </select>
+
+    <!--    장소 아이디로 코스 조회-->
+    <select id="findCoursesByPlaceId" resultType="com.minseok.coursepalette.entity.CourseWithUser">
+        SELECT c.course_id                                                       AS courseId,
+               c.title,
+               c.category,
+               c.created_at,
+               (SELECT COUNT(*) FROM favorite f WHERE f.course_id = c.course_id) AS favorite,
+               u.user_id                                                         AS userId,
+               u.nickname,
+               u.profile_image_url                                               AS profileImageUrl
+        FROM course c
+                 JOIN coursePlace cp ON c.course_id = cp.course_id
+                 JOIN user u ON c.user_id = u.user_id
+        WHERE cp.place_id = #{placeId}
+        ORDER BY favorite DESC, c.created_at DESC
+    </select>
 </mapper>

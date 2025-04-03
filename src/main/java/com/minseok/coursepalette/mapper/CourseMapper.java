@@ -33,4 +33,6 @@ public interface CourseMapper {
 	List<CourseWithUser> findCoursesByFilter(@Param("search") String search,
 		@Param("category") String category);
 
+	// 장소 id로 코스 조회
+	List<CourseWithUser> findCoursesByPlaceId(@Param("placeId") String placeId);
 }
