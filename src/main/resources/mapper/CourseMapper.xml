@@ -17,7 +17,7 @@
         JOIN user u ON c.user_id = u.user_id
         <where>
             <if test="search != null and search != '' ">
-                AND title LIKE CONCAT('%', ${search}, '%')
+                AND title LIKE CONCAT('%', #{search}, '%')
             </if>
             <if test="category != null and category != '' and category != '전체'">
                 AND category = #{category}
