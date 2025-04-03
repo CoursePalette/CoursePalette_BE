@@ -9,6 +9,7 @@
         user_id AS userId,
         title,
         category,
+        (SELECT COUNT(*) FROM favorite f WHERE f.course_id = course.course_id) AS favorite,
         DATE_FORMAT(created_at, '%Y-%m-%d') AS createdAt
         FROM course
         <where>

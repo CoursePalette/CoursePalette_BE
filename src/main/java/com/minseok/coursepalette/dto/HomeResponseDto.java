@@ -22,6 +22,7 @@ public class HomeResponseDto {
 		private Long userId;
 		private String title;
 		private String category;
+		private int favorite;
 		private String createdAt;
 	}
 
