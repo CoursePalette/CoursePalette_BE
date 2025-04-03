@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 import com.minseok.coursepalette.dto.HomeResponseDto;
 import com.minseok.coursepalette.dto.HomeResponseDto.CourseSimpleDto;
 import com.minseok.coursepalette.dto.HomeResponseDto.PlaceDto;
-import com.minseok.coursepalette.entity.CourseEntity;
+import com.minseok.coursepalette.dto.HomeResponseDto.UserDto;
+import com.minseok.coursepalette.entity.CourseWithUser;
 import com.minseok.coursepalette.entity.PlaceEntity;
 import com.minseok.coursepalette.mapper.CourseMapper;
 import com.minseok.coursepalette.mapper.PlaceMapper;
@@ -26,10 +27,10 @@ public class HomeService {
 
 	public HomeResponseDto getHomeCoursesAndPlaces(String search, String category) {
 		// 필터링된 코스 목록
-		List<CourseEntity> courseEntities = courseMapper.findCoursesByFilter(search, category);
+		List<CourseWithUser> courseList = courseMapper.findCoursesByFilter(search, category);
 
 		// 만약 비었다? 그렇다면 빈 값들 반환한다.
-		if (courseEntities.isEmpty()) {
+		if (courseList.isEmpty()) {
 			HomeResponseDto emptyRes = new HomeResponseDto();
 			emptyRes.setCourses(new ArrayList<>());
 			emptyRes.setPlaces(new ArrayList<>());
@@ -39,12 +40,19 @@ public class HomeService {
 		// 코스 리스트를 Dto로 변환
 		List<CourseSimpleDto> courseDtos = new ArrayList<>();
 		List<Long> courseIds = new ArrayList<>();
-		for (CourseEntity c : courseEntities) {
+
+		for (CourseWithUser c : courseList) {
 			courseIds.add(c.getCourseId());
+
+			//user 정보
+			UserDto userDto = new UserDto();
+			userDto.setUserId(c.getUserId());
+			userDto.setNickname(c.getNickname());
+			userDto.setProfileImageUrl(c.getProfileImageUrl());
 
 			CourseSimpleDto dto = new CourseSimpleDto();
 			dto.setCourseId(c.getCourseId());
-			dto.setUserId(c.getUserId());
+			dto.setUser(userDto);
 			dto.setTitle(c.getTitle());
 			dto.setCategory(c.getCategory());
 			dto.setCreatedAt(c.getCreatedAt() == null ? null : c.getCreatedAt().toString());

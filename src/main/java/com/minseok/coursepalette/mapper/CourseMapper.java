@@ -8,6 +8,7 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 
 import com.minseok.coursepalette.entity.CourseEntity;
+import com.minseok.coursepalette.entity.CourseWithUser;
 
 @Mapper
 public interface CourseMapper {
@@ -29,7 +30,7 @@ public interface CourseMapper {
 
 	// 검색, 카테고리 필터된 코스 목록
 	// 동적 select는 xml에 구현
-	List<CourseEntity> findCoursesByFilter(@Param("search") String search,
+	List<CourseWithUser> findCoursesByFilter(@Param("search") String search,
 		@Param("category") String category);
 
 }

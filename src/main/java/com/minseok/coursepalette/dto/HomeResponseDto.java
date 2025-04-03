@@ -19,11 +19,18 @@ public class HomeResponseDto {
 	@Data
 	public static class CourseSimpleDto {
 		private Long courseId;
-		private Long userId;
+		private UserDto user;
 		private String title;
 		private String category;
 		private int favorite;
 		private String createdAt;
+	}
+
+	@Data
+	public static class UserDto {
+		private Long userId;
+		private String nickname;
+		private String profileImageUrl;
 	}
 
 	@Data
