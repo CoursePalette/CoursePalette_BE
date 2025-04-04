@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 
+import com.minseok.coursepalette.dto.CourseDetailResponseDto;
 import com.minseok.coursepalette.entity.CourseEntity;
 import com.minseok.coursepalette.entity.CourseWithUser;
 
@@ -35,4 +36,7 @@ public interface CourseMapper {
 
 	// 장소 id로 코스 조회
 	List<CourseWithUser> findCoursesByPlaceId(@Param("placeId") String placeId);
+
+	//코스에 포함된 장소를 순서를 포함하여 조회
+	List<CourseDetailResponseDto.CoursePlaceDetailDto> findCoursePlacesByCourseId(@Param("courseId") Long courseId);
 }

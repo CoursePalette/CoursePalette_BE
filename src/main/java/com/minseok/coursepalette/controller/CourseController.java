@@ -2,6 +2,8 @@ package com.minseok.coursepalette.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.minseok.coursepalette.config.JwtProvider;
+import com.minseok.coursepalette.dto.CourseDetailResponseDto;
 import com.minseok.coursepalette.dto.CreateCourseRequestDto;
 import com.minseok.coursepalette.dto.CreateCourseResponseDto;
 import com.minseok.coursepalette.service.CourseService;
@@ -81,5 +84,15 @@ public class CourseController {
 		responseDto.setCourseId(courseId);
 		responseDto.setMessage("코스 등록 성공");
 		return ResponseEntity.ok(responseDto);
+	}
+
+	@Operation(summary = "코스 상세 조회", description = "코스 아이디를 받고 해당 코스에 포함된 장소를 순서를 포함하여 반환")
+	@GetMapping("/detail/{courseId}")
+	public ResponseEntity<CourseDetailResponseDto> getCourseDetail(@PathVariable Long courseId) {
+		CourseDetailResponseDto response = courseService.getCourseDetail(courseId);
+		if (response.getPlaces() == null || response.getPlaces().isEmpty()) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(response);
 	}
 }

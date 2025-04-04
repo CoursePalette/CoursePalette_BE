@@ -42,4 +42,20 @@
         WHERE cp.place_id = #{placeId}
         ORDER BY favorite DESC, c.created_at DESC
     </select>
+
+    <!--    코스 상세조회  : 코스에 포함된 장소를 조회-->
+    <select id="findCoursePlacesByCourseId"
+            resultType="com.minseok.coursepalette.dto.CourseDetailResponseDto$CoursePlaceDetailDto">
+        SELECT cp.place_id AS placeId,
+               p.name,
+               p.address,
+               p.latitude,
+               p.longitude,
+               p.place_url AS placeUrl,
+               cp.sequence
+        FROM coursePlace cp
+                 JOIN place p ON cp.place_id = p.place_id
+        WHERE cp.course_id = #{courseId}
+        ORDER BY cp.sequence ASC
+    </select>
 </mapper>
