@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.minseok.coursepalette.dto.CourseDetailResponseDto;
 import com.minseok.coursepalette.dto.CoursePlaceRequestDto;
 import com.minseok.coursepalette.dto.CreateCourseRequestDto;
 import com.minseok.coursepalette.entity.CourseEntity;
@@ -54,6 +55,14 @@ public class CourseService {
 			courseMapper.insertCoursePlace(newCourseId, p.getPlaceId(), p.getSequence());
 		}
 		return newCourseId;
+	}
+
+	@Transactional
+	public CourseDetailResponseDto getCourseDetail(Long courseId) {
+		List<CourseDetailResponseDto.CoursePlaceDetailDto> places = courseMapper.findCoursePlacesByCourseId(courseId);
+		CourseDetailResponseDto response = new CourseDetailResponseDto();
+		response.setPlaces(places);
+		return response;
 	}
 
 }
