@@ -14,6 +14,9 @@ import com.minseok.coursepalette.config.JwtProvider;
 import com.minseok.coursepalette.dto.CourseDetailResponseDto;
 import com.minseok.coursepalette.dto.CreateCourseRequestDto;
 import com.minseok.coursepalette.dto.CreateCourseResponseDto;
+import com.minseok.coursepalette.dto.FavoriteRequestDto;
+import com.minseok.coursepalette.dto.FavoriteResponseDto;
+import com.minseok.coursepalette.entity.FavoriteService;
 import com.minseok.coursepalette.service.CourseService;
 
 import io.jsonwebtoken.Claims;
@@ -30,6 +33,9 @@ public class CourseController {
 
 	@Autowired
 	private JwtProvider jwtProvider;
+
+	@Autowired
+	private FavoriteService favoriteService;
 
 	@Operation(
 		summary = "코스 등록",
@@ -94,5 +100,65 @@ public class CourseController {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(response);
+	}
+
+	@Operation(
+		summary = "코스 즐겨찾기",
+		description = "jwt의 userId와 body의 courseId로 즐겨찾기 진행. 이미 즐찾 되어있으면 특정 메세지 반환."
+	)
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "즐겨찾기 성공 또는 이미 즐겨찾기 상태"),
+		@ApiResponse(responseCode = "400", description = "토큰이 없거나 형식이 잘못됨"),
+		@ApiResponse(responseCode = "401", description = "유효하지 않은 토큰 또는 userId 추출 실패"),
+		@ApiResponse(responseCode = "500", description = "서버 에러")
+	})
+	@SecurityRequirement(name = "BearerAuth")
+	@PostMapping("/favorite")
+	public ResponseEntity<FavoriteResponseDto> favoriteCourse(
+		@RequestHeader(value = "Authorization", required = true) String authorizationHeader,
+		@RequestBody FavoriteRequestDto request
+	) {
+		FavoriteResponseDto responseDto = new FavoriteResponseDto();
+
+		// 헤더에 토큰 있는지 확인
+		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+			responseDto.setMessage("토큰이 없습니다.");
+			return ResponseEntity.badRequest().body(responseDto);
+		}
+		String token = authorizationHeader.substring("Bearer ".length());
+
+		// 토큰 파싱 후 userId를 추출한다
+		Claims claims;
+		try {
+			claims = jwtProvider.parseToken(token);
+		} catch (Exception e) {
+			responseDto.setMessage("유효하지 않은 토큰입니다.");
+			return ResponseEntity.status(401).body(responseDto);
+		}
+
+		Long userId;
+		try {
+			userId = Long.valueOf(claims.getSubject());
+		} catch (NumberFormatException e) {
+			responseDto.setMessage("토큰에서 userId 추출 실패.");
+			return ResponseEntity.status(401).body(responseDto);
+		}
+
+		// 즐겨찾기 처리
+		boolean isFavorited;
+		try {
+			isFavorited = favoriteService.favoriteCourse(userId, request.getCourseId());
+		} catch (Exception e) {
+			responseDto.setMessage("즐겨찾기 처리 중 에러 발생.");
+			return ResponseEntity.status(500).body(responseDto);
+		}
+
+		if (isFavorited) {
+			responseDto.setMessage("코스를 즐겨찾기 했습니다!");
+		} else {
+			responseDto.setMessage("이미 즐겨찾기 된 코스입니다.");
+		}
+
+		return ResponseEntity.ok(responseDto);
 	}
 }
