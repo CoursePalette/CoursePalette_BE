@@ -55,6 +55,7 @@ public class HomeService {
 			dto.setUser(userDto);
 			dto.setTitle(c.getTitle());
 			dto.setCategory(c.getCategory());
+			dto.setFavorite(c.getFavorite());
 			dto.setCreatedAt(c.getCreatedAt() == null ? null : c.getCreatedAt().toString());
 
 			courseDtos.add(dto);
