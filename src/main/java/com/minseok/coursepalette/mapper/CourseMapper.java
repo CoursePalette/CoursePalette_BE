@@ -2,6 +2,7 @@ package com.minseok.coursepalette.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
@@ -52,4 +53,7 @@ public interface CourseMapper {
 		order by c.created_at desc
 		""")
 	List<CourseWithUser> findCourseByUserId(@Param("userId") Long userId);
+
+	@Delete("delete from course where course_id = #{courseId} and user_id = #{userId}")
+	int deleteCourse(@Param("courseId") Long courseId, @Param("userId") Long userId);
 }

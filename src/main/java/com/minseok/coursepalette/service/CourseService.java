@@ -92,4 +92,10 @@ public class CourseService {
 		}
 		return courseDtos;
 	}
+
+	@Transactional
+	public boolean deleteCourse(Long userId, Long courseId) {
+		int rowsAffected = courseMapper.deleteCourse(userId, courseId);
+		return rowsAffected > 0;
+	}
 }

@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import com.minseok.coursepalette.config.JwtProvider;
 import com.minseok.coursepalette.dto.CourseDetailResponseDto;
 import com.minseok.coursepalette.dto.CreateCourseRequestDto;
 import com.minseok.coursepalette.dto.CreateCourseResponseDto;
+import com.minseok.coursepalette.dto.DeleteCourseResponseDto;
 import com.minseok.coursepalette.dto.FavoriteRequestDto;
 import com.minseok.coursepalette.dto.FavoriteResponseDto;
 import com.minseok.coursepalette.dto.HomeResponseDto;
@@ -198,5 +200,51 @@ public class CourseController {
 		// 유저 코스 조회
 		List<HomeResponseDto.CourseSimpleDto> myCourses = courseService.getMyCourses(userId);
 		return ResponseEntity.ok(myCourses);
+	}
+
+	@Operation(
+		summary = "코스 삭제",
+		description = "jwt에서 userId 추출 후 body의 courseId로 코스 삭제"
+	)
+	@SecurityRequirement(name = "BearerAuth")
+	@DeleteMapping("/{courseId}")
+	public ResponseEntity<DeleteCourseResponseDto> deleteCourse(
+		@RequestHeader(value = "Authorizaiton", required = true) String authorization,
+		@PathVariable Long courseId
+	) {
+		DeleteCourseResponseDto response = new DeleteCourseResponseDto();
+
+		// 토큰 검증
+		if (authorization == null || !authorization.startsWith("Bearer ")) {
+			response.setMessage("토큰이 필요합니다.");
+			return ResponseEntity.badRequest().body(response);
+		}
+		String token = authorization.substring("Bearer ".length());
+
+		Claims claims;
+		try {
+			claims = jwtProvider.parseToken(token);
+		} catch (Exception e) {
+			response.setMessage("유효하지 않은 토큰입니다.");
+			return ResponseEntity.status(401).body(response);
+		}
+
+		Long userId;
+		try {
+			userId = Long.valueOf(claims.getSubject());
+		} catch (NumberFormatException e) {
+			response.setMessage("토큰에서 userId 추출 실패했습니다.");
+			return ResponseEntity.status(401).body(response);
+		}
+
+		// 코스 삭제 처리
+		boolean deleted = courseService.deleteCourse(userId, courseId);
+		if (deleted) {
+			response.setMessage("코스를 성공적으로 삭제했습니다!");
+			return ResponseEntity.ok(response);
+		} else {
+			response.setMessage("삭제 권한이 없거나 코스가 존재하지 않습니다.");
+			return ResponseEntity.status(403).body(response);
+		}
 	}
 }
