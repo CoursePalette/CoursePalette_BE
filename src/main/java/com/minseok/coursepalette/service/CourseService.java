@@ -1,5 +1,6 @@
 package com.minseok.coursepalette.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.minseok.coursepalette.dto.CourseDetailResponseDto;
 import com.minseok.coursepalette.dto.CoursePlaceRequestDto;
 import com.minseok.coursepalette.dto.CreateCourseRequestDto;
+import com.minseok.coursepalette.dto.HomeResponseDto;
 import com.minseok.coursepalette.entity.CourseEntity;
+import com.minseok.coursepalette.entity.CourseWithUser;
 import com.minseok.coursepalette.entity.PlaceEntity;
 import com.minseok.coursepalette.mapper.CourseMapper;
 import com.minseok.coursepalette.mapper.PlaceMapper;
@@ -65,4 +68,28 @@ public class CourseService {
 		return response;
 	}
 
+	@Transactional(readOnly = true)
+	public List<HomeResponseDto.CourseSimpleDto> getMyCourses(Long userId) {
+		List<CourseWithUser> courses = courseMapper.findCourseByUserId(userId);
+
+		List<HomeResponseDto.CourseSimpleDto> courseDtos = new ArrayList<>();
+
+		for (CourseWithUser course : courses) {
+			HomeResponseDto.CourseSimpleDto dto = new HomeResponseDto.CourseSimpleDto();
+			dto.setCourseId(course.getCourseId());
+			dto.setTitle(course.getTitle());
+			dto.setCategory(course.getCategory());
+			dto.setFavorite(course.getFavorite());
+			dto.setCreatedAt(course.getCreatedAt() != null ? course.getCreatedAt().toString() : null);
+
+			HomeResponseDto.UserDto userDto = new HomeResponseDto.UserDto();
+			userDto.setUserId(course.getUserId());
+			userDto.setNickname(course.getNickname());
+			userDto.setProfileImageUrl(course.getProfileImageUrl());
+			dto.setUser(userDto);
+
+			courseDtos.add(dto);
+		}
+		return courseDtos;
+	}
 }
