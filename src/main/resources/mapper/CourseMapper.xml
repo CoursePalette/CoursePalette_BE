@@ -70,7 +70,7 @@
     <update id="updateCourseTitleAndCategory">
         update course
         set title    = #{title},
-            categoty = #{category}
+            category = #{category}
         where course_id = #{courseId}
     </update>
 
