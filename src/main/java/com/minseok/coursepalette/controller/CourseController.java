@@ -1,5 +1,7 @@
 package com.minseok.coursepalette.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +18,7 @@ import com.minseok.coursepalette.dto.CreateCourseRequestDto;
 import com.minseok.coursepalette.dto.CreateCourseResponseDto;
 import com.minseok.coursepalette.dto.FavoriteRequestDto;
 import com.minseok.coursepalette.dto.FavoriteResponseDto;
+import com.minseok.coursepalette.dto.HomeResponseDto;
 import com.minseok.coursepalette.entity.FavoriteService;
 import com.minseok.coursepalette.service.CourseService;
 
@@ -160,5 +163,40 @@ public class CourseController {
 		}
 
 		return ResponseEntity.ok(responseDto);
+	}
+
+	@Operation(
+		summary = "내가 등록한 코스 조회",
+		description = "jwt에서 userId 추출 후 해당 사용자가 등록한 코스 전체 반환"
+	)
+	@SecurityRequirement(name = "BearerAuth")
+	@GetMapping("/mycourse")
+	public ResponseEntity<List<HomeResponseDto.CourseSimpleDto>> getMyCourse(
+		@RequestHeader(value = "Authorization", required = true) String authorizationHeader
+	) {
+		// 토큰 검증
+		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		String token = authorizationHeader.substring("Bearer ".length());
+		Claims claims;
+		try {
+			claims = jwtProvider.parseToken(token);
+		} catch (Exception e) {
+			return ResponseEntity.status(401).build();
+		}
+
+		// jwt에서 userId 추출
+		Long userId;
+		try {
+			userId = Long.valueOf(claims.getSubject());
+		} catch (NumberFormatException e) {
+			return ResponseEntity.status(401).build();
+		}
+
+		// 유저 코스 조회
+		List<HomeResponseDto.CourseSimpleDto> myCourses = courseService.getMyCourses(userId);
+		return ResponseEntity.ok(myCourses);
 	}
 }

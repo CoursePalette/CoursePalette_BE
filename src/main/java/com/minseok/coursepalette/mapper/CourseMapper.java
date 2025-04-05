@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import com.minseok.coursepalette.dto.CourseDetailResponseDto;
 import com.minseok.coursepalette.entity.CourseEntity;
@@ -39,4 +40,16 @@ public interface CourseMapper {
 
 	//코스에 포함된 장소를 순서를 포함하여 조회
 	List<CourseDetailResponseDto.CoursePlaceDetailDto> findCoursePlacesByCourseId(@Param("courseId") Long courseId);
+
+	// userId로 코스를 조회
+	@Select("""
+		select c.course_id as courseId, c.title, c.category, c.created_at,  
+		(select count(*) from favorite f where f.course_id = c.course_id) as favorite, 
+		u.user_id as userId, u.nickname, u.profile_image_url AS profileImageUrl 
+		from course c
+		join user u on c.user_id = u.user_id
+		where c.user_id = #{userId}
+		order by c.created_at desc
+		""")
+	List<CourseWithUser> findCourseByUserId(@Param("userId") Long userId);
 }
