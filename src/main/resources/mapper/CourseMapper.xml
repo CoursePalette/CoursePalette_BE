@@ -58,4 +58,38 @@
         WHERE cp.course_id = #{courseId}
         ORDER BY cp.sequence ASC
     </select>
+
+    <!--    코스 주인 찾기-->
+    <select id="findOwnerByCourseId" resultType="java.lang.Long">
+        select user_id
+        from course
+        where course_id = #{courseId}
+    </select>
+
+    <!--    제목 ,카테고리 업데이트-->
+    <update id="updateCourseTitleAndCategory">
+        update course
+        set title    = #{title},
+            category = #{category}
+        where course_id = #{courseId}
+    </update>
+
+
+    <!--    coursePlace 삭제-->
+    <delete id="deleteAllCoursePlaces">
+        delete
+        from coursePlace
+        where course_id = #{courseId}
+    </delete>
+
+    <!--    코스 정보 select-->
+    <select id="findCourseEntity" resultType="com.minseok.coursepalette.entity.CourseEntity">
+        select course_id as courseId,
+               user_id   as userId,
+               title,
+               category,
+               created_at
+        from course
+        where course_id = #{courseId}
+    </select>
 </mapper>
