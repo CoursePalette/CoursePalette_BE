@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -246,5 +247,84 @@ public class CourseController {
 			response.setMessage("삭제 권한이 없거나 코스가 존재하지 않습니다.");
 			return ResponseEntity.status(403).body(response);
 		}
+	}
+
+	@Operation(summary = "코스 수정", description = "코스 ID로 수정할 데이터 받아서 업데이트")
+	@SecurityRequirement(name = "BearerAuth")
+	@PutMapping("/{courseId}")
+	public ResponseEntity<CreateCourseResponseDto> updateCourse(
+		@RequestHeader(value = "Authorization", required = true) String authorizationHeader,
+		@PathVariable Long courseId,
+		@RequestBody CreateCourseRequestDto request
+	) {
+		CreateCourseResponseDto response = new CreateCourseResponseDto();
+
+		// 토큰 파싱
+		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+			response.setMessage("토큰이 필요합니다.");
+			return ResponseEntity.badRequest().body(response);
+		}
+		String token = authorizationHeader.substring("Bearer ".length());
+
+		Claims claims;
+		try {
+			claims = jwtProvider.parseToken(token);
+		} catch (Exception e) {
+			response.setMessage("유효하지 않은 토큰입니다.");
+			return ResponseEntity.status(401).body(response);
+		}
+
+		Long userId;
+		try {
+			userId = Long.valueOf(claims.getSubject());
+		} catch (NumberFormatException e) {
+			response.setMessage("토큰에서 useId 추출 실패");
+			return ResponseEntity.status(401).body(response);
+		}
+
+		boolean ok = courseService.updateCourse(userId, courseId, request);
+		if (!ok) {
+			response.setMessage("수정 권한이 없거나 코스가 존재하지 않습니다.");
+			return ResponseEntity.status(403).body(response);
+		}
+
+		response.setCourseId(courseId);
+		response.setMessage("코스 수정 완료");
+		return ResponseEntity.ok(response);
+	}
+
+	// 수정 페이지에서 코스 정보 가져오기
+	@Operation(summary = "코스 수정 페이지 초기 데이터", description = "userId가 소유자인지 확인 및 코스 데이터 반환")
+	@SecurityRequirement(name = "BearerAuth")
+	@GetMapping("/edit/{courseId}")
+	public ResponseEntity<CreateCourseRequestDto> getCourseEditData(
+		@RequestHeader(value = "Authorization", required = true) String authorizationHeader,
+		@PathVariable Long courseId
+	) {
+		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+			return ResponseEntity.status(400).build();
+		}
+		String token = authorizationHeader.substring("Bearer ".length());
+		Claims claims;
+
+		try {
+			claims = jwtProvider.parseToken(token);
+		} catch (Exception e) {
+			return ResponseEntity.status(401).build();
+		}
+
+		Long userId;
+		try {
+			userId = Long.valueOf(claims.getSubject());
+		} catch (NumberFormatException e) {
+			return ResponseEntity.status(401).build();
+		}
+
+		CreateCourseRequestDto dto = courseService.getCourseEditData(userId, courseId);
+		if (dto == null) {
+			return ResponseEntity.status(403).build();
+		}
+		return ResponseEntity.ok(dto);
+
 	}
 }

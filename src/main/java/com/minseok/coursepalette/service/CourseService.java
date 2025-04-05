@@ -98,4 +98,86 @@ public class CourseService {
 		int rowsAffected = courseMapper.deleteCourse(courseId, userId);
 		return rowsAffected > 0;
 	}
+
+	// 코스 수정
+	// 1. userId로 본인 코스인지 체크
+	// 2. 기존 coursePlace 레코드 삭제
+	// 3. places 다시 insert
+	@Transactional
+	public boolean updateCourse(Long userId, Long courseId, CreateCourseRequestDto request) {
+
+		// 해당 코스가 본인 소유인지 확인
+		Long foundOwnerId = courseMapper.findOwnerByCourseId(courseId);
+		if (foundOwnerId == null || !foundOwnerId.equals(userId)) {
+			return false;
+		}
+
+		// course 테이블 업데이트
+		courseMapper.updateCourseTitleAndCategory(courseId, request.getTitle(), request.getCategory());
+
+		// 기존 coursePlace 삭제
+		courseMapper.deleteAllCoursePlaces(courseId);
+
+		// 새로운 places insert
+		request.getPlaces().forEach(p -> {
+			// place 테이블에 없는 새로운 place 라면 테이블에 추가해준다.
+			PlaceEntity existingPlace = placeMapper.findPlaceById(p.getPlaceId());
+
+			if (existingPlace == null) {
+				// place 테이블에 insert
+				PlaceEntity newPlace = new PlaceEntity();
+				newPlace.setPlaceId(p.getPlaceId());
+				newPlace.setName(p.getName());
+				newPlace.setAddress(p.getAddress());
+				newPlace.setLatitude(p.getLatitude());
+				newPlace.setLongitude(p.getLongitude());
+				newPlace.setPlaceUrl(p.getPlaceUrl());
+				placeMapper.insertPlace(newPlace);
+			}
+			courseMapper.insertCoursePlace(courseId, p.getPlaceId(), p.getSequence());
+		});
+		return true;
+
+	}
+
+	// 수정 페이지 데이터 불러올 때 사용
+	@Transactional(readOnly = true)
+	public CreateCourseRequestDto getCourseEditData(Long userId, Long courseId) {
+		// 코스가 유저 소유인지 확인
+		Long ownerId = courseMapper.findOwnerByCourseId(courseId);
+		if (ownerId == null || !ownerId.equals(userId)) {
+			return null;
+		}
+
+		// 코스 정보 select
+		// title, category 는 courseMapper에 select 추가
+		// places 는 기존 getCourseDetail과 비슷
+
+		CourseEntity courseEntity = courseMapper.findCourseEntity(courseId);
+		if (courseEntity == null) {
+			return null;
+		}
+
+		// 타입이 똑같지만 CreateCourseRequestDto에 CoursePlaceReqeustDto가 있어서..
+		List<CourseDetailResponseDto.CoursePlaceDetailDto> placeList = courseMapper.findCoursePlacesByCourseId(
+			courseId);
+		List<CoursePlaceRequestDto> placeRequests = new ArrayList<>();
+		for (CourseDetailResponseDto.CoursePlaceDetailDto pd : placeList) {
+			CoursePlaceRequestDto req = new CoursePlaceRequestDto();
+			req.setPlaceId(pd.getPlaceId());
+			req.setName(pd.getName());
+			req.setAddress(pd.getAddress());
+			req.setLatitude(pd.getLatitude());
+			req.setLongitude(pd.getLongitude());
+			req.setPlaceUrl(pd.getPlaceUrl());
+			req.setSequence(pd.getSequence());
+			placeRequests.add(req);
+		}
+
+		CreateCourseRequestDto result = new CreateCourseRequestDto();
+		result.setTitle(courseEntity.getTitle());
+		result.setCategory(courseEntity.getCategory());
+		result.setPlaces(placeRequests);
+		return result;
+	}
 }

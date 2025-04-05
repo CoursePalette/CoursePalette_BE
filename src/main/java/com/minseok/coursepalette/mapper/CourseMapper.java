@@ -56,4 +56,20 @@ public interface CourseMapper {
 
 	@Delete("delete from course where course_id = #{courseId} and user_id = #{userId}")
 	int deleteCourse(@Param("courseId") Long courseId, @Param("userId") Long userId);
+
+	// 코스 주인 찾기
+	Long findOwnerByCourseId(@Param("courseId") Long courseId);
+
+	// 제목, 카ㅔㅌ고리 업데이트
+	void updateCourseTitleAndCategory(
+		@Param("courseId") Long courseId,
+		@Param("title") String title,
+		@Param("category") String categoty
+	);
+
+	// coursePlace 삭제
+	void deleteAllCoursePlaces(@Param("courseId") Long courseId);
+
+	// 코스 정보를 select (title, category 등)
+	CourseEntity findCourseEntity(@Param("courseId") Long courseId);
 }
