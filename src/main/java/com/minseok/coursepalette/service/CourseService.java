@@ -95,7 +95,7 @@ public class CourseService {
 
 	@Transactional
 	public boolean deleteCourse(Long userId, Long courseId) {
-		int rowsAffected = courseMapper.deleteCourse(userId, courseId);
+		int rowsAffected = courseMapper.deleteCourse(courseId, userId);
 		return rowsAffected > 0;
 	}
 }
