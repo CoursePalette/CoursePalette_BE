@@ -209,7 +209,7 @@ public class CourseController {
 	@SecurityRequirement(name = "BearerAuth")
 	@DeleteMapping("/{courseId}")
 	public ResponseEntity<DeleteCourseResponseDto> deleteCourse(
-		@RequestHeader(value = "Authorizaiton", required = true) String authorization,
+		@RequestHeader(value = "Authorization", required = true) String authorization,
 		@PathVariable Long courseId
 	) {
 		DeleteCourseResponseDto response = new DeleteCourseResponseDto();
