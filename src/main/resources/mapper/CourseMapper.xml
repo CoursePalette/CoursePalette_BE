@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.minseok.coursepalette.mapper.CourseMapper">
+    <select id="findCoursesByFilter" resultType="com.minseok.coursepalette.entity.CourseWithUser">
+        SELECT
+        c.course_id AS courseId,
+        c.title,
+        c.category,
+        c.created_at,
+        (SELECT COUNT(*) FROM favorite f WHERE f.course_id = c.course_id) AS favorite,
+        u.user_id AS userId,
+        u.nickname,
+        u.profile_image_url AS profileImageUrl
+        FROM course c
+        JOIN user u ON c.user_id = u.user_id
+        <where>
+            <if test="search != null and search != '' ">
+                AND title LIKE CONCAT('%', #{search}, '%')
+            </if>
+            <if test="category != null and category != '' and category != '전체'">
+                AND category = #{category}
+            </if>
+        </where>
+        ORDER BY course_id DESC
+    </select>
+
+    <!--    장소 아이디로 코스 조회-->
+    <select id="findCoursesByPlaceId" resultType="com.minseok.coursepalette.entity.CourseWithUser">
+        SELECT c.course_id                                                       AS courseId,
+               c.title,
+               c.category,
+               c.created_at,
+               (SELECT COUNT(*) FROM favorite f WHERE f.course_id = c.course_id) AS favorite,
+               u.user_id                                                         AS userId,
+               u.nickname,
+               u.profile_image_url                                               AS profileImageUrl
+        FROM course c
+                 JOIN coursePlace cp ON c.course_id = cp.course_id
+                 JOIN user u ON c.user_id = u.user_id
+        WHERE cp.place_id = #{placeId}
+        ORDER BY favorite DESC, c.created_at DESC
+    </select>
+
+    <!--    코스 상세조회  : 코스에 포함된 장소를 조회-->
+    <select id="findCoursePlacesByCourseId"
+            resultType="com.minseok.coursepalette.dto.CourseDetailResponseDto$CoursePlaceDetailDto">
+        SELECT cp.place_id AS placeId,
+               p.name,
+               p.address,
+               p.latitude,
+               p.longitude,
+               p.place_url AS placeUrl,
+               cp.sequence
+        FROM coursePlace cp
+                 JOIN place p ON cp.place_id = p.place_id
+        WHERE cp.course_id = #{courseId}
+        ORDER BY cp.sequence ASC
+    </select>
+
+    <!--    코스 주인 찾기-->
+    <select id="findOwnerByCourseId" resultType="java.lang.Long">
+        select user_id
+        from course
+        where course_id = #{courseId}
+    </select>
+
+    <!--    제목 ,카테고리 업데이트-->
+    <update id="updateCourseTitleAndCategory">
+        update course
+        set title    = #{title},
+            category = #{category}
+        where course_id = #{courseId}
+    </update>
+
+
+    <!--    coursePlace 삭제-->
+    <delete id="deleteAllCoursePlaces">
+        delete
+        from coursePlace
+        where course_id = #{courseId}
+    </delete>
+
+    <!--    코스 정보 select-->
+    <select id="findCourseEntity" resultType="com.minseok.coursepalette.entity.CourseEntity">
+        select course_id as courseId,
+               user_id   as userId,
+               title,
+               category,
+               created_at
+        from course
+        where course_id = #{courseId}
+    </select>
+
+    <!--    유저가 즐찾한 코스 select-->
+    <select id="findFavoriteCoursesByUserId" parameterType="long"
+            resultType="com.minseok.coursepalette.entity.CourseWithUser">
+        select c.course_id                                                         as courseId,
+               c.title,
+               c.category,
+               c.created_at,
+               (select count(*) from favorite f2 where f2.course_id = c.course_id) as favorite,
+               u.user_id                                                           as userId,
+               u.nickname,
+               u.profile_image_url                                                 as profileImageUrl
+        from favorite f
+                 join course c on f.course_id = c.course_id
+                 join user u on c.user_id = u.user_id
+        where f.user_id = #{userId}
+        order by c.created_at desc
+    </select>
+</mapper>
