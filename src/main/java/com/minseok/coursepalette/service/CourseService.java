@@ -184,7 +184,7 @@ public class CourseService {
 	@Transactional(readOnly = true)
 	public List<HomeResponseDto.CourseSimpleDto> getMyFavoriteCourses(Long userId) {
 		// 유저가 즐겨찾기한 코스 리스트 조회
-		List<CourseWithUser> courses = courseMapper.findCourseByUserId(userId);
+		List<CourseWithUser> courses = courseMapper.findFavoriteCoursesByUserId(userId);
 
 		List<HomeResponseDto.CourseSimpleDto> courseDtos = new ArrayList<>();
 		for (CourseWithUser course : courses) {

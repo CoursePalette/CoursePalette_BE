@@ -107,7 +107,7 @@
         from favorite f
                  join course c on f.course_id = c.course_id
                  join user u on c.user_id = u.user_id
-        where f.user_ud = #{userId}
+        where f.user_id = #{userId}
         order by c.created_at desc
     </select>
 </mapper>
