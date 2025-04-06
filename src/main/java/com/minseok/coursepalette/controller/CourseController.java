@@ -362,4 +362,64 @@ public class CourseController {
 		List<HomeResponseDto.CourseSimpleDto> favoriteCourses = courseService.getMyFavoriteCourses(userId);
 		return ResponseEntity.ok(favoriteCourses);
 	}
+
+	@Operation(
+		summary = "코스 즐겨찾기 해제",
+		description = "jwt의 userId와 Pathvariable의 courseId를 사용해서 즐겨찾기 해제"
+	)
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "즐겨찾기 해제 성공"),
+		@ApiResponse(responseCode = "400", description = "토큰이 없거나 형식이 잘못됨"),
+		@ApiResponse(responseCode = "401", description = "유효하지 않은 토큰 또는 userId 추출 실패"),
+		@ApiResponse(responseCode = "404", description = "즐겨찾기에 없는 코스일 경우"),
+		@ApiResponse(responseCode = "500", description = "서버 에러")
+	})
+	@SecurityRequirement(name = "BearerAuth")
+	@DeleteMapping("/favorite/{courseId}")
+	public ResponseEntity<FavoriteResponseDto> removeFavorite(
+		@RequestHeader(value = "Authorization", required = true) String authorizationHeader,
+		@PathVariable Long courseId
+	) {
+		FavoriteResponseDto responseDto = new FavoriteResponseDto();
+
+		// 토큰 검사
+		if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+			responseDto.setMessage("토큰이 필요합니다.");
+			return ResponseEntity.badRequest().body(responseDto);
+		}
+		String token = authorizationHeader.substring("Bearer ".length());
+
+		Claims claims;
+		try {
+			claims = jwtProvider.parseToken(token);
+		} catch (Exception e) {
+			responseDto.setMessage("유효하지 않은 토큰입니다.");
+			return ResponseEntity.status(401).body(responseDto);
+		}
+
+		Long userId;
+		try {
+			userId = Long.valueOf(claims.getSubject());
+		} catch (NumberFormatException e) {
+			responseDto.setMessage("토큰에서 userId 추출 실패.");
+			return ResponseEntity.status(401).body(responseDto);
+		}
+
+		// 즐겨찾기 해제
+		boolean ok = false;
+		try {
+			ok = courseService.unfavoriteCourse(userId, courseId);
+		} catch (Exception e) {
+			responseDto.setMessage("즐겨찾기 해제 중 오류 발생했습니다.");
+			return ResponseEntity.status(500).body(responseDto);
+		}
+
+		if (!ok) {
+			responseDto.setMessage("즐겨찾기에 없는 코스이거나 이미 해제되었습니다.");
+			return ResponseEntity.status(404).body(responseDto);
+		}
+
+		responseDto.setMessage("코스 즐겨찾기를 해제했습니다.");
+		return ResponseEntity.ok(responseDto);
+	}
 }

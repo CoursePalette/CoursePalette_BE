@@ -15,6 +15,7 @@ import com.minseok.coursepalette.entity.CourseEntity;
 import com.minseok.coursepalette.entity.CourseWithUser;
 import com.minseok.coursepalette.entity.PlaceEntity;
 import com.minseok.coursepalette.mapper.CourseMapper;
+import com.minseok.coursepalette.mapper.FavoriteMapper;
 import com.minseok.coursepalette.mapper.PlaceMapper;
 
 @Service
@@ -24,6 +25,9 @@ public class CourseService {
 
 	@Autowired
 	private PlaceMapper placeMapper;
+
+	@Autowired
+	private FavoriteMapper favoriteMapper;
 
 	@Transactional
 	public Long createCourse(Long userId, CreateCourseRequestDto request) {
@@ -205,5 +209,20 @@ public class CourseService {
 		}
 
 		return courseDtos;
+	}
+
+	@Transactional
+	public boolean unfavoriteCourse(Long userId, Long courseId) {
+		// 즐겨찾기 여부 확인
+		int count = favoriteMapper.countFavorite(userId, courseId);
+
+		if (count <= 0) {
+			// 즐겨찾기가 없다
+			return false;
+		}
+
+		//즐찾 있으면 삭제
+		favoriteMapper.deleteFavorite(userId, courseId);
+		return true;
 	}
 }
