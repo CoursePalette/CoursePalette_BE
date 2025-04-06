@@ -15,6 +15,7 @@ import com.minseok.coursepalette.entity.CourseEntity;
 import com.minseok.coursepalette.entity.CourseWithUser;
 import com.minseok.coursepalette.entity.PlaceEntity;
 import com.minseok.coursepalette.mapper.CourseMapper;
+import com.minseok.coursepalette.mapper.FavoriteMapper;
 import com.minseok.coursepalette.mapper.PlaceMapper;
 
 @Service
@@ -24,6 +25,9 @@ public class CourseService {
 
 	@Autowired
 	private PlaceMapper placeMapper;
+
+	@Autowired
+	private FavoriteMapper favoriteMapper;
 
 	@Transactional
 	public Long createCourse(Long userId, CreateCourseRequestDto request) {
@@ -179,5 +183,46 @@ public class CourseService {
 		result.setCategory(courseEntity.getCategory());
 		result.setPlaces(placeRequests);
 		return result;
+	}
+
+	@Transactional(readOnly = true)
+	public List<HomeResponseDto.CourseSimpleDto> getMyFavoriteCourses(Long userId) {
+		// 유저가 즐겨찾기한 코스 리스트 조회
+		List<CourseWithUser> courses = courseMapper.findFavoriteCoursesByUserId(userId);
+
+		List<HomeResponseDto.CourseSimpleDto> courseDtos = new ArrayList<>();
+		for (CourseWithUser course : courses) {
+			HomeResponseDto.CourseSimpleDto dto = new HomeResponseDto.CourseSimpleDto();
+			dto.setCourseId(course.getCourseId());
+			dto.setTitle(course.getTitle());
+			dto.setCategory(course.getCategory());
+			dto.setFavorite(course.getFavorite());
+			dto.setCreatedAt(course.getCreatedAt() != null ? course.getCreatedAt().toString() : null);
+
+			HomeResponseDto.UserDto userDto = new HomeResponseDto.UserDto();
+			userDto.setUserId(course.getUserId());
+			userDto.setNickname(course.getNickname());
+			userDto.setProfileImageUrl(course.getProfileImageUrl());
+			dto.setUser(userDto);
+
+			courseDtos.add(dto);
+		}
+
+		return courseDtos;
+	}
+
+	@Transactional
+	public boolean unfavoriteCourse(Long userId, Long courseId) {
+		// 즐겨찾기 여부 확인
+		int count = favoriteMapper.countFavorite(userId, courseId);
+
+		if (count <= 0) {
+			// 즐겨찾기가 없다
+			return false;
+		}
+
+		//즐찾 있으면 삭제
+		favoriteMapper.deleteFavorite(userId, courseId);
+		return true;
 	}
 }

@@ -92,4 +92,22 @@
         from course
         where course_id = #{courseId}
     </select>
+
+    <!--    유저가 즐찾한 코스 select-->
+    <select id="findFavoriteCoursesByUserId" parameterType="long"
+            resultType="com.minseok.coursepalette.entity.CourseWithUser">
+        select c.course_id                                                         as courseId,
+               c.title,
+               c.category,
+               c.created_at,
+               (select count(*) from favorite f2 where f2.course_id = c.course_id) as favorite,
+               u.user_id                                                           as userId,
+               u.nickname,
+               u.profile_image_url                                                 as profileImageUrl
+        from favorite f
+                 join course c on f.course_id = c.course_id
+                 join user u on c.user_id = u.user_id
+        where f.user_id = #{userId}
+        order by c.created_at desc
+    </select>
 </mapper>

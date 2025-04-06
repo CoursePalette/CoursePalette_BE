@@ -72,4 +72,7 @@ public interface CourseMapper {
 
 	// 코스 정보를 select (title, category 등)
 	CourseEntity findCourseEntity(@Param("courseId") Long courseId);
+
+	// 유저가 즐찾한 코스 찾기
+	List<CourseWithUser> findFavoriteCoursesByUserId(@Param("userId") Long userId);
 }
