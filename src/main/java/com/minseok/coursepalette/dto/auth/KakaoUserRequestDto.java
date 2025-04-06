@@ -1,4 +1,4 @@
-package com.minseok.coursepalette.dto;
+package com.minseok.coursepalette.dto.auth;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;

@@ -1,8 +1,5 @@
 package com.minseok.coursepalette.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,7 +7,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.minseok.coursepalette.dto.KakaoUserRequestDto;
+import com.minseok.coursepalette.dto.auth.KakaoAuthResponseDto;
+import com.minseok.coursepalette.dto.auth.KakaoUserRequestDto;
 import com.minseok.coursepalette.entity.UserEntity;
 import com.minseok.coursepalette.service.AuthService;
 
@@ -34,7 +32,7 @@ public class AuthController {
 		@ApiResponse(responseCode = "500", description = "서버 에러")
 	})
 	@PostMapping("/kakao")
-	public ResponseEntity<Map<String, Object>> handleKakaoLogin(@RequestBody KakaoUserRequestDto request) {
+	public ResponseEntity<KakaoAuthResponseDto> handleKakaoLogin(@RequestBody KakaoUserRequestDto request) {
 
 		// 유저 저장 및 업데이트
 		UserEntity user = authService.saveOrUpdateKakaoUser(request);
@@ -43,11 +41,11 @@ public class AuthController {
 		String token = authService.generateJwt(user);
 
 		//응답 바디를 구성
-		Map<String, Object> result = new HashMap<>();
-		result.put("token", token);
-		result.put("userId", user.getUserId());
-		result.put("nickname", user.getNickname());
-		result.put("profileImageUrl", user.getProfileImageUrl());
+		KakaoAuthResponseDto result = new KakaoAuthResponseDto();
+		result.setToken(token);
+		result.setUserId(user.getUserId());
+		result.setNickname(user.getNickname());
+		result.setProfileImageUrl(user.getProfileImageUrl());
 
 		return ResponseEntity.ok(result);
 	}

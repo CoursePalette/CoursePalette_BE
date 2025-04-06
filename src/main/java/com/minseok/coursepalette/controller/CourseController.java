@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.minseok.coursepalette.config.JwtProvider;
-import com.minseok.coursepalette.dto.CourseDetailResponseDto;
-import com.minseok.coursepalette.dto.CreateCourseRequestDto;
-import com.minseok.coursepalette.dto.CreateCourseResponseDto;
-import com.minseok.coursepalette.dto.DeleteCourseResponseDto;
-import com.minseok.coursepalette.dto.FavoriteRequestDto;
-import com.minseok.coursepalette.dto.FavoriteResponseDto;
-import com.minseok.coursepalette.dto.HomeResponseDto;
+import com.minseok.coursepalette.dto.course.CourseDetailResponseDto;
+import com.minseok.coursepalette.dto.course.CourseSimpleDto;
+import com.minseok.coursepalette.dto.course.CreateCourseRequestDto;
+import com.minseok.coursepalette.dto.course.CreateCourseResponseDto;
+import com.minseok.coursepalette.dto.course.DeleteCourseResponseDto;
+import com.minseok.coursepalette.dto.course.FavoriteRequestDto;
+import com.minseok.coursepalette.dto.course.FavoriteResponseDto;
 import com.minseok.coursepalette.entity.FavoriteService;
 import com.minseok.coursepalette.service.CourseService;
 
@@ -43,6 +43,8 @@ public class CourseController {
 	@Autowired
 	private FavoriteService favoriteService;
 
+	// ========================================================================
+	// ========================================================================
 	@Operation(
 		summary = "코스 등록",
 		description = "Authorization 헤더로 Bearer 토큰을 받고, 토큰 파싱으로 userId를 추출한 뒤, 코스를 생성한다."
@@ -98,6 +100,9 @@ public class CourseController {
 		return ResponseEntity.ok(responseDto);
 	}
 
+	// ========================================================================
+	// ========================================================================
+
 	@Operation(summary = "코스 상세 조회", description = "코스 아이디를 받고 해당 코스에 포함된 장소를 순서를 포함하여 반환")
 	@GetMapping("/detail/{courseId}")
 	public ResponseEntity<CourseDetailResponseDto> getCourseDetail(@PathVariable Long courseId) {
@@ -107,6 +112,9 @@ public class CourseController {
 		}
 		return ResponseEntity.ok(response);
 	}
+
+	// ========================================================================
+	// ========================================================================
 
 	@Operation(
 		summary = "코스 즐겨찾기",
@@ -168,13 +176,16 @@ public class CourseController {
 		return ResponseEntity.ok(responseDto);
 	}
 
+	// ========================================================================
+	// ========================================================================
+
 	@Operation(
 		summary = "내가 등록한 코스 조회",
 		description = "jwt에서 userId 추출 후 해당 사용자가 등록한 코스 전체 반환"
 	)
 	@SecurityRequirement(name = "BearerAuth")
 	@GetMapping("/mycourse")
-	public ResponseEntity<List<HomeResponseDto.CourseSimpleDto>> getMyCourse(
+	public ResponseEntity<List<CourseSimpleDto>> getMyCourse(
 		@RequestHeader(value = "Authorization", required = true) String authorizationHeader
 	) {
 		// 토큰 검증
@@ -199,9 +210,12 @@ public class CourseController {
 		}
 
 		// 유저 코스 조회
-		List<HomeResponseDto.CourseSimpleDto> myCourses = courseService.getMyCourses(userId);
+		List<CourseSimpleDto> myCourses = courseService.getMyCourses(userId);
 		return ResponseEntity.ok(myCourses);
 	}
+
+	// ========================================================================
+	// ========================================================================
 
 	@Operation(
 		summary = "코스 삭제",
@@ -249,6 +263,9 @@ public class CourseController {
 		}
 	}
 
+	// ========================================================================
+	// ========================================================================
+
 	@Operation(summary = "코스 수정", description = "코스 ID로 수정할 데이터 받아서 업데이트")
 	@SecurityRequirement(name = "BearerAuth")
 	@PutMapping("/{courseId}")
@@ -293,6 +310,9 @@ public class CourseController {
 		return ResponseEntity.ok(response);
 	}
 
+	// ========================================================================
+	// ========================================================================
+
 	// 수정 페이지에서 코스 정보 가져오기
 	@Operation(summary = "코스 수정 페이지 초기 데이터", description = "userId가 소유자인지 확인 및 코스 데이터 반환")
 	@SecurityRequirement(name = "BearerAuth")
@@ -328,13 +348,16 @@ public class CourseController {
 
 	}
 
+	// ========================================================================
+	// ========================================================================
+
 	@Operation(
 		summary = "유저가 즐겨찾기한 코스 조회",
 		description = "jwt에서 userId 추출 후 해당 사용자가 즐겨찾기 한 코스 전체 반환"
 	)
 	@SecurityRequirement(name = "BearerAuth")
 	@GetMapping("/myfavorite")
-	public ResponseEntity<List<HomeResponseDto.CourseSimpleDto>> getMyFavoriteCourses(
+	public ResponseEntity<List<CourseSimpleDto>> getMyFavoriteCourses(
 		@RequestHeader(value = "Authorization", required = true) String authorization
 	) {
 		// 토큰 검증
@@ -359,9 +382,12 @@ public class CourseController {
 		}
 
 		// 유저가 즐겨찾기 한 코스 조회
-		List<HomeResponseDto.CourseSimpleDto> favoriteCourses = courseService.getMyFavoriteCourses(userId);
+		List<CourseSimpleDto> favoriteCourses = courseService.getMyFavoriteCourses(userId);
 		return ResponseEntity.ok(favoriteCourses);
 	}
+
+	// ========================================================================
+	// ========================================================================
 
 	@Operation(
 		summary = "코스 즐겨찾기 해제",
@@ -422,4 +448,8 @@ public class CourseController {
 		responseDto.setMessage("코스 즐겨찾기를 해제했습니다.");
 		return ResponseEntity.ok(responseDto);
 	}
+
+	// ========================================================================
+	// ========================================================================
+
 }
