@@ -1,4 +1,4 @@
-package com.minseok.coursepalette.dto;
+package com.minseok.coursepalette.dto.course;
 
 import java.util.List;
 
@@ -14,5 +14,5 @@ public class CreateCourseRequestDto {
 	private String category;
 
 	@Schema(description = "장소 목록(최소 2개 이상)", example = "[{ placeId: '123', name: '카페A'...}, { ... }]")
-	private List<CoursePlaceRequestDto> places;
+	private List<CoursePlaceDto> places;
 }

@@ -1,4 +1,4 @@
-package com.minseok.coursepalette.dto;
+package com.minseok.coursepalette.dto.course;
 
 import lombok.Data;
 

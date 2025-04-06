@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.minseok.coursepalette.dto.PlaceWithCoursesResponseDto;
+import com.minseok.coursepalette.dto.place.PlaceWithCoursesResponseDto;
 import com.minseok.coursepalette.service.PlaceService;
 
 @RestController

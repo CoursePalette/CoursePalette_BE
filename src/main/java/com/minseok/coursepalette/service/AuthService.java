@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.minseok.coursepalette.config.JwtProvider;
-import com.minseok.coursepalette.dto.KakaoUserRequestDto;
+import com.minseok.coursepalette.dto.auth.KakaoUserRequestDto;
 import com.minseok.coursepalette.entity.UserEntity;
 import com.minseok.coursepalette.mapper.UserMapper;
 
