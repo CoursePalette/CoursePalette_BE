@@ -327,4 +327,39 @@ public class CourseController {
 		return ResponseEntity.ok(dto);
 
 	}
+
+	@Operation(
+		summary = "유저가 즐겨찾기한 코스 조회",
+		description = "jwt에서 userId 추출 후 해당 사용자가 즐겨찾기 한 코스 전체 반환"
+	)
+	@SecurityRequirement(name = "BearerAuth")
+	@GetMapping("/myfavorite")
+	public ResponseEntity<List<HomeResponseDto.CourseSimpleDto>> getMyFavoriteCourses(
+		@RequestHeader(value = "Authorization", required = true) String authorization
+	) {
+		// 토큰 검증
+		if (authorization == null || !authorization.startsWith("Bearer ")) {
+			return ResponseEntity.badRequest().build();
+		}
+
+		String token = authorization.substring("Bearer ".length());
+		Claims claims;
+		try {
+			claims = jwtProvider.parseToken(token);
+		} catch (Exception e) {
+			return ResponseEntity.status(401).build();
+		}
+
+		//userId 추출
+		Long userId;
+		try {
+			userId = Long.valueOf(claims.getSubject());
+		} catch (NumberFormatException e) {
+			return ResponseEntity.status(401).build();
+		}
+
+		// 유저가 즐겨찾기 한 코스 조회
+		List<HomeResponseDto.CourseSimpleDto> favoriteCourses = courseService.getMyFavoriteCourses(userId);
+		return ResponseEntity.ok(favoriteCourses);
+	}
 }
