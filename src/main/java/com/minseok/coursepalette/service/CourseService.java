@@ -7,10 +7,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.minseok.coursepalette.dto.CourseDetailResponseDto;
-import com.minseok.coursepalette.dto.CoursePlaceRequestDto;
-import com.minseok.coursepalette.dto.CreateCourseRequestDto;
-import com.minseok.coursepalette.dto.HomeResponseDto;
+import com.minseok.coursepalette.dto.course.CourseDetailResponseDto;
+import com.minseok.coursepalette.dto.course.CoursePlaceDto;
+import com.minseok.coursepalette.dto.course.CourseSimpleDto;
+import com.minseok.coursepalette.dto.course.CreateCourseRequestDto;
+import com.minseok.coursepalette.dto.user.UserDto;
 import com.minseok.coursepalette.entity.CourseEntity;
 import com.minseok.coursepalette.entity.CourseWithUser;
 import com.minseok.coursepalette.entity.PlaceEntity;
@@ -42,8 +43,8 @@ public class CourseService {
 		Long newCourseId = course.getCourseId();
 
 		//장소
-		List<CoursePlaceRequestDto> places = request.getPlaces();
-		for (CoursePlaceRequestDto p : places) {
+		List<CoursePlaceDto> places = request.getPlaces();
+		for (CoursePlaceDto p : places) {
 			// placeId가 db에 있는지 확인
 			PlaceEntity existingPlace = placeMapper.findPlaceById(p.getPlaceId());
 
@@ -64,29 +65,29 @@ public class CourseService {
 		return newCourseId;
 	}
 
-	@Transactional
+	@Transactional(readOnly = true)
 	public CourseDetailResponseDto getCourseDetail(Long courseId) {
-		List<CourseDetailResponseDto.CoursePlaceDetailDto> places = courseMapper.findCoursePlacesByCourseId(courseId);
+		List<CoursePlaceDto> places = courseMapper.findCoursePlacesByCourseId(courseId);
 		CourseDetailResponseDto response = new CourseDetailResponseDto();
 		response.setPlaces(places);
 		return response;
 	}
 
 	@Transactional(readOnly = true)
-	public List<HomeResponseDto.CourseSimpleDto> getMyCourses(Long userId) {
+	public List<CourseSimpleDto> getMyCourses(Long userId) {
 		List<CourseWithUser> courses = courseMapper.findCourseByUserId(userId);
 
-		List<HomeResponseDto.CourseSimpleDto> courseDtos = new ArrayList<>();
+		List<CourseSimpleDto> courseDtos = new ArrayList<>();
 
 		for (CourseWithUser course : courses) {
-			HomeResponseDto.CourseSimpleDto dto = new HomeResponseDto.CourseSimpleDto();
+			CourseSimpleDto dto = new CourseSimpleDto();
 			dto.setCourseId(course.getCourseId());
 			dto.setTitle(course.getTitle());
 			dto.setCategory(course.getCategory());
 			dto.setFavorite(course.getFavorite());
 			dto.setCreatedAt(course.getCreatedAt() != null ? course.getCreatedAt().toString() : null);
 
-			HomeResponseDto.UserDto userDto = new HomeResponseDto.UserDto();
+			UserDto userDto = new UserDto();
 			userDto.setUserId(course.getUserId());
 			userDto.setNickname(course.getNickname());
 			userDto.setProfileImageUrl(course.getProfileImageUrl());
@@ -163,43 +164,31 @@ public class CourseService {
 		}
 
 		// 타입이 똑같지만 CreateCourseRequestDto에 CoursePlaceReqeustDto가 있어서..
-		List<CourseDetailResponseDto.CoursePlaceDetailDto> placeList = courseMapper.findCoursePlacesByCourseId(
+		List<CoursePlaceDto> placeList = courseMapper.findCoursePlacesByCourseId(
 			courseId);
-		List<CoursePlaceRequestDto> placeRequests = new ArrayList<>();
-		for (CourseDetailResponseDto.CoursePlaceDetailDto pd : placeList) {
-			CoursePlaceRequestDto req = new CoursePlaceRequestDto();
-			req.setPlaceId(pd.getPlaceId());
-			req.setName(pd.getName());
-			req.setAddress(pd.getAddress());
-			req.setLatitude(pd.getLatitude());
-			req.setLongitude(pd.getLongitude());
-			req.setPlaceUrl(pd.getPlaceUrl());
-			req.setSequence(pd.getSequence());
-			placeRequests.add(req);
-		}
 
 		CreateCourseRequestDto result = new CreateCourseRequestDto();
 		result.setTitle(courseEntity.getTitle());
 		result.setCategory(courseEntity.getCategory());
-		result.setPlaces(placeRequests);
+		result.setPlaces(placeList);
 		return result;
 	}
 
 	@Transactional(readOnly = true)
-	public List<HomeResponseDto.CourseSimpleDto> getMyFavoriteCourses(Long userId) {
+	public List<CourseSimpleDto> getMyFavoriteCourses(Long userId) {
 		// 유저가 즐겨찾기한 코스 리스트 조회
 		List<CourseWithUser> courses = courseMapper.findFavoriteCoursesByUserId(userId);
 
-		List<HomeResponseDto.CourseSimpleDto> courseDtos = new ArrayList<>();
+		List<CourseSimpleDto> courseDtos = new ArrayList<>();
 		for (CourseWithUser course : courses) {
-			HomeResponseDto.CourseSimpleDto dto = new HomeResponseDto.CourseSimpleDto();
+			CourseSimpleDto dto = new CourseSimpleDto();
 			dto.setCourseId(course.getCourseId());
 			dto.setTitle(course.getTitle());
 			dto.setCategory(course.getCategory());
 			dto.setFavorite(course.getFavorite());
 			dto.setCreatedAt(course.getCreatedAt() != null ? course.getCreatedAt().toString() : null);
 
-			HomeResponseDto.UserDto userDto = new HomeResponseDto.UserDto();
+			UserDto userDto = new UserDto();
 			userDto.setUserId(course.getUserId());
 			userDto.setNickname(course.getNickname());
 			userDto.setProfileImageUrl(course.getProfileImageUrl());

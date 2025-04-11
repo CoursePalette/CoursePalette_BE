@@ -1,11 +1,11 @@
-package com.minseok.coursepalette.dto;
+package com.minseok.coursepalette.dto.course;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-public class CoursePlaceRequestDto {
-	@Schema(description = "플레이스(장소) 고유 ID (ex. 카카오 API 검색 결과의 ID 사용)", example = "27301827")
+public class CoursePlaceDto {
+	@Schema(description = "장소 고유 ID (예: 카카오 API 제공 ID)", example = "27301827")
 	private String placeId;
 
 	@Schema(description = "장소 이름", example = "홍대 카페")
@@ -23,6 +23,6 @@ public class CoursePlaceRequestDto {
 	@Schema(description = "장소 상세 URL (카카오맵 등)", example = "http://place.map.kakao.com/...")
 	private String placeUrl;
 
-	@Schema(description = "코스 내 순서", example = "1")
+	@Schema(description = "해당 코스 내 순서", example = "1")
 	private int sequence;
 }

@@ -6,10 +6,10 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.minseok.coursepalette.dto.HomeResponseDto;
-import com.minseok.coursepalette.dto.HomeResponseDto.CourseSimpleDto;
-import com.minseok.coursepalette.dto.HomeResponseDto.PlaceDto;
-import com.minseok.coursepalette.dto.HomeResponseDto.UserDto;
+import com.minseok.coursepalette.dto.course.CourseSimpleDto;
+import com.minseok.coursepalette.dto.home.HomeResponseDto;
+import com.minseok.coursepalette.dto.place.PlaceDto;
+import com.minseok.coursepalette.dto.user.UserDto;
 import com.minseok.coursepalette.entity.CourseWithUser;
 import com.minseok.coursepalette.entity.PlaceEntity;
 import com.minseok.coursepalette.mapper.CourseMapper;
