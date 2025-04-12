@@ -1,0 +1,24 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  # --- RDS DB 설정 ---
+  datasource:
+    url: jdbc:mysql://${RDS_ENDPOINT}:3306/coursepalettedb?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
+    # 실제 값은 GitHub Secrets -> EC2 환경 변수를 통해 주입될 예정
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # HikariCP 커넥션 풀 설정 (운영 환경 권장)
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 30000 # 30초
+      idle-timeout: 600000 # 10분
+      max-lifetime: 1800000 # 30분
+
+  # --- 운영 환경 JWT 설정 ---
+  jwt:
+    # 실제 값은 GitHub Secrets -> EC2 환경 변수를 통해 주입될 예정
+    secret: ${JWT_SECRET_PROD}
+    expiration-ms: 36000000  # 10시간

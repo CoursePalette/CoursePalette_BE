@@ -4,24 +4,18 @@ server:
 spring:
   profiles:
     active: local  # ??? profile ??
+    # 'local' 또는 'prod' 프로파일이 활성화되면 해당 파일을 읽어옴
+    # optional: 은 파일이 없어도 오류를 발생시키지 않음
+    import:
+      - optional:classpath:application-local.yml
+      - optional:classpath:application-prod.yml
 
----
-spring:
-  config:
-    activate:
-      on-profile: local
-
-  datasource:
-    url: jdbc:mysql://localhost:3306/coursePalette?useSSL=false&characterEncoding=UTF-8&serverTimezone=Asia/Seoul
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
 
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
-  mapper-locations: classpath:mapper/**/*.xml
+    mapper-locations: classpath:mapper/**/*.xml
 
-jwt:
-  secret: "${JWT_SECRET}"
-  expiration-ms: 36000000  # 10시간
+logging:
+  level:
+    root: INFO
