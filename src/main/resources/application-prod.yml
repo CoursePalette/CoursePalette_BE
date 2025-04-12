@@ -18,7 +18,7 @@ spring:
       max-lifetime: 1800000 # 30분
 
   # --- 운영 환경 JWT 설정 ---
-  jwt:
-    # 실제 값은 GitHub Secrets -> EC2 환경 변수를 통해 주입될 예정
-    secret: ${JWT_SECRET_PROD}
-    expiration-ms: 36000000  # 10시간
+jwt:
+  # 실제 값은 GitHub Secrets -> EC2 환경 변수를 통해 주입될 예정
+  secret: ${JWT_SECRET_PROD}
+  expiration-ms: 36000000  # 10시간
