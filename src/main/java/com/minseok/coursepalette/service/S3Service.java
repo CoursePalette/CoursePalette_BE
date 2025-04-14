@@ -28,6 +28,7 @@ public class S3Service {
 	private String region;
 
 	public PresignedUrlResponseDto generatePresignedUrl(Long userId, PresignedUrlRequestDto request) {
+		System.out.println("Received Content-Type for Presigned URL: " + request.getContentType());
 		// s3에 저장될 경로 생성 (user-profiles/{userId}/{uuid}-{fileName})
 		String uniqueFileName = UUID.randomUUID().toString() + "-" + request.getFileName();
 		String objectKey = "user-profiles/" + userId + "/" + uniqueFileName;
