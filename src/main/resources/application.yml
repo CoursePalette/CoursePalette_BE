@@ -20,3 +20,12 @@ mybatis:
 logging:
   level:
     root: INFO
+    com.minseok.coursepalette: DEBUG # 개발 중 패키지 로그 레벨 상세 설정
+    software.amazon.awssdk: INFO # AWS SDK 로그 (필요시 DEBUG로 변경하여 상세 확인)
+    org.apache.ibatis: DEBUG # MyBatis 로그 (필요시 TRACE로 변경하여 SQL 확인)
+    org.springframework.web: INFO # Spring Web 로그
+
+aws:
+  region: ap-northeast-2
+  s3:
+    bucket-name: ${S3_BUCKET_NAME} # S3 버킷 이름 (!!환경 변수 S3_BUCKET_NAME 필수 설정!!)
